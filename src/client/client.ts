@@ -5,6 +5,7 @@ import { GUI } from 'lil-gui'
 
 
 const scene = new THREE.Scene()
+scene.add(new THREE.AxesHelper(5))
 
 const camera = new THREE.PerspectiveCamera(
     75,
@@ -43,21 +44,45 @@ document.body.appendChild(stats.dom)
 
 const gui = new GUI()
 const cubeFolder = gui.addFolder('Cube')
-cubeFolder.add(cube.rotation, 'x', 0, Math.PI * 2)
-cubeFolder.add(cube.rotation, 'y', 0, Math.PI * 2)
-cubeFolder.add(cube.rotation, 'z', 0, Math.PI * 2)
-cubeFolder.add(cube.position, 'z', -10, 0, 0.001)
+const cubeRotationFolder = cubeFolder.addFolder('Rotation')
+cubeRotationFolder.add(cube.rotation, 'x', 0, Math.PI * 2)
+cubeRotationFolder.add(cube.rotation, 'y', 0, Math.PI * 2)
+cubeRotationFolder.add(cube.rotation, 'z', 0, Math.PI * 2)
 cubeFolder.open()
-// const cameraFolder = gui.addFolder('Camera')
-// cameraFolder.add(camera.position, 'z', 0, 10)
-// cameraFolder.open()
-
+cubeRotationFolder.open()
+// const cubePositionFolder = cubeFolder.addFolder('Position')
+// cubePositionFolder.add(cube.position, 'x', -10, 10, 2)
+// cubePositionFolder.add(cube.position, 'y', -10, 10, 2)
+// cubePositionFolder.add(cube.position, 'z', -10, 10, 2)
+// cubeFolder.open()
+// cubePositionFolder.open()
+const cubeScaleFolder = cubeFolder.addFolder('Scale')
+cubeScaleFolder.add(cube.scale, 'x', -5, 5)
+cubeScaleFolder.add(cube.scale, 'y', -5, 5)
+cubeScaleFolder.add(cube.scale, 'z', -5, 5)
+cubeFolder.add(cube, 'visible')
+cubeFolder.open()
+cubeScaleFolder.open()
+let meshes: THREE.Object3D[] = []
+const nMeshes = 31
+for(let i = 0; i < nMeshes; i++){
+    const mesh = new THREE.Mesh(geometry, material)
+    scene.add(mesh)
+    meshes.push(mesh)
+}
 function animate() {
     requestAnimationFrame(animate)
 
     // cube.rotation.x += 0.01
     // cube.rotation.y += 0.01
-
+    
+    for(let i = 0; i < nMeshes; i++){
+        const mesh = meshes[i]
+        mesh.position.x = i-nMeshes/2
+        mesh.position.y = 0
+        mesh.position.z = Math.cos(i/10*Math.PI*2)*2
+            mesh.quaternion.slerp(cube.quaternion, 0.01*Math.sin(i/nMeshes/2*Math.PI*2))
+    }
     render()
 
     stats.update()
