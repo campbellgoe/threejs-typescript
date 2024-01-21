@@ -1,4 +1,8 @@
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import Stats from 'three/examples/jsm/libs/stats.module'
+import { GUI } from 'lil-gui'
+
 
 const scene = new THREE.Scene()
 
@@ -13,6 +17,9 @@ camera.position.z = 2
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
+
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.addEventListener('change', render)
 
 const geometry = new THREE.BoxGeometry()
 const material = new THREE.MeshBasicMaterial({
@@ -31,13 +38,29 @@ function onWindowResize() {
     render()
 }
 
+const stats = new Stats()
+document.body.appendChild(stats.dom)
+
+const gui = new GUI()
+const cubeFolder = gui.addFolder('Cube')
+cubeFolder.add(cube.rotation, 'x', 0, Math.PI * 2)
+cubeFolder.add(cube.rotation, 'y', 0, Math.PI * 2)
+cubeFolder.add(cube.rotation, 'z', 0, Math.PI * 2)
+cubeFolder.add(cube.position, 'z', -10, 0, 0.001)
+cubeFolder.open()
+// const cameraFolder = gui.addFolder('Camera')
+// cameraFolder.add(camera.position, 'z', 0, 10)
+// cameraFolder.open()
+
 function animate() {
     requestAnimationFrame(animate)
 
-    cube.rotation.x += 0.01
-    cube.rotation.y += 0.01
+    // cube.rotation.x += 0.01
+    // cube.rotation.y += 0.01
 
     render()
+
+    stats.update()
 }
 
 function render() {
