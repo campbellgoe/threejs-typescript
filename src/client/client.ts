@@ -31,6 +31,7 @@ const material = new THREE.MeshBasicMaterial({
 const cube = new THREE.Mesh(geometry, material)
 scene.add(cube)
 
+
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight
@@ -56,13 +57,12 @@ cubeRotationFolder.open()
 // cubePositionFolder.add(cube.position, 'z', -10, 10, 2)
 // cubeFolder.open()
 // cubePositionFolder.open()
-const cubeScaleFolder = cubeFolder.addFolder('Scale')
-cubeScaleFolder.add(cube.scale, 'x', -5, 5)
-cubeScaleFolder.add(cube.scale, 'y', -5, 5)
-cubeScaleFolder.add(cube.scale, 'z', -5, 5)
+// const cubeScaleFolder = cubeFolder.addFolder('Scale')
+// cubeScaleFolder.add(cube.scale, 'x', -5, 5)
+// cubeScaleFolder.add(cube.scale, 'y', -5, 5)
+// cubeScaleFolder.add(cube.scale, 'z', -5, 5)
 cubeFolder.add(cube, 'visible')
 cubeFolder.open()
-cubeScaleFolder.open()
 let meshes: THREE.Object3D[] = []
 const nMeshes = 31
 for(let i = 0; i < nMeshes; i++){
@@ -72,7 +72,7 @@ for(let i = 0; i < nMeshes; i++){
 }
 function animate() {
     requestAnimationFrame(animate)
-
+console.log(cube.quaternion.toJSON())
     // cube.rotation.x += 0.01
     // cube.rotation.y += 0.01
     
