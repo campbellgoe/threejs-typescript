@@ -1,8 +1,9 @@
+
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import Stats from 'three/examples/jsm/libs/stats.module'
-import { GUI } from 'lil-gui'
-
+import TWEEN from '@tweenjs/tween.js'
 
 const scene = new THREE.Scene()
 scene.add(new THREE.AxesHelper(5))
@@ -16,20 +17,58 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.z = 2
 
 const renderer = new THREE.WebGLRenderer()
+//renderer.physicallyCorrectLights = true //deprecated
+renderer.shadowMap.enabled = true
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
 const controls = new OrbitControls(camera, renderer.domElement)
-controls.addEventListener('change', render)
+controls.enableDamping = true
 
-const geometry = new THREE.BoxGeometry()
-const material = new THREE.MeshBasicMaterial({
+const sceneMeshes: THREE.Mesh[] = []
+let monkey: THREE.Mesh
+const planeGeom = new THREE.PlaneGeometry(10, 10)
+const planeMat = new THREE.MeshBasicMaterial({
     color: 0x00ff00,
-    wireframe: true,
-})
 
-const cube = new THREE.Mesh(geometry, material)
-scene.add(cube)
+})
+const planeMesh = new THREE.Mesh(planeGeom, planeMat)
+planeMesh.receiveShadow = true
+               planeMesh.castShadow = true
+    sceneMeshes.push(planeMesh)
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+    scene.add(ambientLight)
+const loader = new GLTFLoader()
+loader.load(
+    'models/BOX.glb',
+    function (gltf) {
+        gltf.scene.traverse(function (child) {
+            if ((child as THREE.Mesh).isMesh) {
+                let m = child as THREE.Mesh
+                m.receiveShadow = true
+                m.castShadow = true
+                if (child.name === 'FG_Crate1_') {
+                    monkey = m
+                }
+            }
+            if ((child as THREE.Light).isLight) {
+                const l = child as THREE.SpotLight
+                l.castShadow = true
+                l.shadow.bias = -0.003
+                l.shadow.mapSize.width = 2048
+                l.shadow.mapSize.height = 2048
+            }
+        })
+        scene.add(gltf.scene)
+    },
+    (xhr) => {
+        console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+    },
+    (error) => {
+        console.log(error)
+    }
+)
 
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
@@ -39,50 +78,87 @@ function onWindowResize() {
     render()
 }
 
+const raycaster = new THREE.Raycaster()
+const mouse = new THREE.Vector2()
+
+function onDoubleClick(event: MouseEvent) {
+    mouse.set(
+        (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
+        -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
+    )
+    raycaster.setFromCamera(mouse, camera)
+
+    const intersects = raycaster.intersectObjects(sceneMeshes, false)
+
+    if (intersects.length > 0) {
+        const p = intersects[0].point
+
+        //controls.target.set(p.x, p.y, p.z)
+
+        // new TWEEN.Tween(controls.target)
+        //     .to({
+        //         x: p.x,
+        //         y: p.y,
+        //         z: p.z
+        //     }, 500)
+        //     //.delay (1000)
+        //     .easing(TWEEN.Easing.Cubic.Out)
+        //     //.onUpdate(() => render())
+        //     .start()
+
+        new TWEEN.Tween(monkey.position)
+            .to(
+                {
+                    x: p.x,
+                    // y: p.y + 1,
+                    z: p.z,
+                },
+                500
+            )
+            .start()
+
+        new TWEEN.Tween(monkey.position)
+            .to(
+                {
+                    // x: p.x,
+                    y: p.y + 3,
+                    // z: p.z,
+                },
+                250
+            )
+            //.delay (1000)
+            .easing(TWEEN.Easing.Cubic.Out)
+            //.onUpdate(() => render())
+            .start()
+            .onComplete(() => {
+                new TWEEN.Tween(monkey.position)
+                    .to(
+                        {
+                            // x: p.x,
+                            y: p.y + 1,
+                            // z: p.z,
+                        },
+                        250
+                    )
+                    //.delay (250)
+                    .easing(TWEEN.Easing.Bounce.Out)
+                    //.onUpdate(() => render())
+                    .start()
+            })
+    }
+}
+renderer.domElement.addEventListener('dblclick', onDoubleClick, false)
+
 const stats = new Stats()
 document.body.appendChild(stats.dom)
 
-const gui = new GUI()
-const cubeFolder = gui.addFolder('Cube')
-const cubeRotationFolder = cubeFolder.addFolder('Rotation')
-cubeRotationFolder.add(cube.rotation, 'x', 0, Math.PI * 2)
-cubeRotationFolder.add(cube.rotation, 'y', 0, Math.PI * 2)
-cubeRotationFolder.add(cube.rotation, 'z', 0, Math.PI * 2)
-cubeFolder.open()
-cubeRotationFolder.open()
-// const cubePositionFolder = cubeFolder.addFolder('Position')
-// cubePositionFolder.add(cube.position, 'x', -10, 10, 2)
-// cubePositionFolder.add(cube.position, 'y', -10, 10, 2)
-// cubePositionFolder.add(cube.position, 'z', -10, 10, 2)
-// cubeFolder.open()
-// cubePositionFolder.open()
-const cubeScaleFolder = cubeFolder.addFolder('Scale')
-cubeScaleFolder.add(cube.scale, 'x', -5, 5)
-cubeScaleFolder.add(cube.scale, 'y', -5, 5)
-cubeScaleFolder.add(cube.scale, 'z', -5, 5)
-cubeFolder.add(cube, 'visible')
-cubeFolder.open()
-cubeScaleFolder.open()
-let meshes: THREE.Object3D[] = []
-const nMeshes = 31
-for(let i = 0; i < nMeshes; i++){
-    const mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-    meshes.push(mesh)
-}
 function animate() {
     requestAnimationFrame(animate)
 
-    // cube.rotation.x += 0.01
-    // cube.rotation.y += 0.01
-    
-    for(let i = 0; i < nMeshes; i++){
-        const mesh = meshes[i]
-        mesh.position.x = i-nMeshes/2
-        mesh.position.y = 0
-        mesh.position.z = Math.cos(i/10*Math.PI*2)*2
-            mesh.quaternion.slerp(cube.quaternion, 0.01*Math.sin(i/nMeshes/2*Math.PI*2))
-    }
+    controls.update()
+
+    TWEEN.update()
+
     render()
 
     stats.update()
