@@ -42,7 +42,11 @@ const material = new THREE.MeshBasicMaterial({
 
 const cube = new THREE.Mesh(geometry, material)
 scene.add(cube)
+const size = 10;
+const divisions = 10;
 
+const gridHelper = new THREE.GridHelper( size, divisions );
+scene.add( gridHelper );
 const onWheel = () => {
     onWindowResize()
 }
