@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
+"@googlemaps/three@^4.0.9":
+  version "4.0.9"
+  resolved "https://registry.yarnpkg.com/@googlemaps/three/-/three-4.0.9.tgz#172b9140c7e3e20fcadb3367cdf3a5776965f2b6"
+  integrity sha512-Yoxj76uPokmxg9ljlqnseJxrdG3rXFMJvzq/Tict4E/k+9zjV84b1fINz5ZfxEwQQuRy27RJz0CWrkYZVIR0sA==
+
 "@jridgewell/gen-mapping@^0.3.0":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.3.tgz#7e02e6eb5df901aaedb08514203b096614024098"
@@ -122,6 +127,11 @@
     "@types/express-serve-static-core" "^4.17.33"
     "@types/qs" "*"
     "@types/serve-static" "*"
+
+"@types/google.maps@^3.55.1":
+  version "3.55.1"
+  resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.55.1.tgz#71e6b75f8e3efd07aced1035fc3725592745acf5"
+  integrity sha512-4JQjfA+vyAIDgjZIEO+pa12wgZXa1JyGg5eggZ4GullIUF+vVTlvgQrhAdVuNKCGVMdsWopMxLBctRmdl5bMJg==
 
 "@types/http-errors@*":
   version "2.0.4"
